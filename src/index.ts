@@ -35,8 +35,6 @@ app.get('/', async (req, res) => {
 
   const url = req.query.url.toString();
   const quality = (req.query.quality) ? parseInt(req.query.quality.toString()) : 100;
-  const width = (req.query.width) ? parseInt(req.query.width.toString()) : null;
-  const height = (req.query.height) ? parseInt(req.query.height.toString()) : null;
   const image = await fetchImage(url);
 
   if (image.status !== 200) {
@@ -48,6 +46,11 @@ app.get('/', async (req, res) => {
   const toFormat = (format === "avif") ? "heif" : format;
   const compression = (format === "avif") ? "av1" : undefined;
   const pipeline = sharp(image.buffer);
+  
+  let width = (req.query.width) ? parseInt(req.query.width.toString()) : null;
+  let height = (req.query.height) ? parseInt(req.query.height.toString()) : null;
+  width = (width && (await pipeline.metadata()).width >= width) ? width : null;
+  height = (height && (await pipeline.metadata()).height >= height) ? height : null;
 
   if (width || height) {
     pipeline.resize(width, height, { fit: 'outside' });
