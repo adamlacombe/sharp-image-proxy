@@ -1,6 +1,7 @@
 import * as express from 'express';
 import fetch from 'node-fetch';
 import * as sharp from 'sharp';
+import { AvailableFormatInfo, FormatEnum } from 'sharp';
 
 const PORT = process.env.PORT || 8080;
 const ALLOWED_HOST = process.env.ALLOWED_HOST;
@@ -47,7 +48,7 @@ app.get('/', async (req, res) => {
   }
 
   const format = (req.query.format) ? req.query.format.toString() : image.format;
-  const toFormat = (format === "avif") ? "heif" : format;
+  const toFormat: keyof FormatEnum | AvailableFormatInfo = (format === "avif") ? "heif" : format as any;
   const compression = (format === "avif") ? "av1" : undefined;
   const pipeline = sharp(image.buffer);
 
